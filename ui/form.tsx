@@ -10,8 +10,51 @@ import {
   Input_S,
   Label,
 } from './createAccount/formItem';
-
+import { useState } from 'react';
+import { useRouter } from "next/navigation";
 export default function Form() {
+  const [formData, setFormData] = useState({ name1: '', name2: '', year: '', month: '', day: '', tel: '', address: '', password: '', password2: '' })
+
+  const router = useRouter();
+
+  const data = {
+    Name: formData.name1 + formData.name2,
+    Birthday: `${formData.year}-${formData.month}-${formData.day}T00:00:00Z`,
+    Mail: formData.tel,
+    Address: formData.address,
+    Pass: formData.password,
+  };
+
+  const sendFormData = async () => {
+    try {
+      const response = await fetch('http://localhost:3000/createUser', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data)
+      });
+
+      if (response.ok) {
+        const responseData = await response.json();
+        // リクエストが成功した場合の処理
+        console.log('送信おk サーバーからのリスポンス：', responseData);
+        router.push('/');
+      } else {
+        // リクエストが失敗した場合の処理
+        console.error('データの送信に失敗しました');
+      }
+    } catch (error) {
+      // エラーハンドリング
+      console.error('通信エラー:', error);
+    }
+  };
+
+  const handleSubmit = (e: { preventDefault: () => void; }) => {
+    e.preventDefault();
+    console.log(formData);
+    sendFormData();
+  };
   return (
     <>
       <form className="mx-auto mt-6 flex w-60 flex-col items-center">
